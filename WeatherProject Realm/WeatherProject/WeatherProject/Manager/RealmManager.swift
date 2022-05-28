@@ -10,20 +10,15 @@ typealias WeatherDate = (welcome: Welcome, date: Date)
 
 class RealmManager {
     enum RealmCodesError: Int {
-        case removed = 1
+        case changePrimaryKey = 1
         case migration = 10
     }
     
     static let shared = RealmManager()
-    
     private let dataBaseName = "default.realm"
     private var version: UInt64 {
-        set {
-            UserDefaults.standard.set(newValue, forKey: "versionRealm")
-        }
-        get {
-            return UInt64((UserDefaults.standard.object(forKey: "versionRealm") as? Int) ?? 1)
-        }
+        set { UserDefaults.standard.set(newValue, forKey: "versionRealm") }
+        get { return UInt64((UserDefaults.standard.object(forKey: "versionRealm") as? Int) ?? 1) }
     }
     
     private var dataBasePath: URL {
@@ -35,10 +30,9 @@ class RealmManager {
             return try initRealm()
         } catch(let e) {
             guard let error = RealmCodesError(rawValue: (e as NSError).code) else { return try! initRealm() }
-            
             switch error {
             case .migration: version += 1
-            case .removed:
+            case .changePrimaryKey:
                 version = 1
                 try! FileManager.default.removeItem(at: dataBasePath)
             }
@@ -54,7 +48,7 @@ class RealmManager {
     }
     
     func addWeatherToRealmBD(by weather: Welcome, source: SourceValue.RawValue, date: Date) {
-         let WeatherRealmDB = WeatherRealmDB(weather: weather, date: date, source: source )
+        let WeatherRealmDB = WeatherRealmDB(weather: weather, date: date, source: source )
         print(FileServiceManager.shared.documentDirectory.appendingPathComponent(self.dataBaseName))
         do {
             try self.realm.write({
@@ -96,5 +90,4 @@ class RealmManager {
     func getObserverWeatherRealmBD(by source: String) -> Results<WeatherRealmDB> {
         return realm.objects(WeatherRealmDB.self).filter("source == %@", source)
     }
-    
 }

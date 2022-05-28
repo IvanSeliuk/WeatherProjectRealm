@@ -134,6 +134,7 @@ class ShowHistoryRequestViewController: UIViewController {
     }
     
     @IBAction func segmentControlAction(_ sender: Any) {
+        MediaManager.shared.playSoundPlayer(with: SoundsChoice.click.rawValue)
         segmentControlAction()
     }
     
