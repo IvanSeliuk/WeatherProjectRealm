@@ -39,44 +39,41 @@ class ShowHistoryRequestViewController: UIViewController {
         setupUI()
         observerMapWeather()
         observerCityWeather()
-    
+        
     }
     
-   private func observerCityWeather() {
-        self.observerWeathersCityToken = RealmManager.shared.getObserverWeatherRealmBD(by: SourceValue.city.rawValue).observe({ collection in
-            switch collection {
-            case .initial(let collection):
-                print("initial count weathers through city: \(collection.count)")
-            case .update(let collection, deletions: let del, insertions: let ins, modifications: let mod):
-                print("update count weathers through city: \(collection.count)")
-                print("deleted")
-                print(del)
-                print("inserted")
-                print(ins)
-                print("modification")
-                print(mod)
-            default: break
-            }
+    private func observerCityWeather() {
+        self.observerWeathersCityToken = RealmManager.shared.getObserverWeatherRealmBD(by: SourceValue.city.rawValue).observe({ [weak self] collection in
+            self?.observeWeatherRealmDB(with: collection, type: .city)
         })
     }
     
     private func observerMapWeather() {
-         self.observerWeathersMapToken = RealmManager.shared.getObserverWeatherRealmBD(by: SourceValue.map.rawValue).observe({ collection in
-             switch collection {
-             case .initial(let collection):
-                 print("initial count weathers through map: \(collection.count)")
-             case .update(let collection, deletions: let del, insertions: let ins, modifications: let mod):
-                 print("update count weathers through map: \(collection.count)")
-                 print("deleted")
-                 print(del)
-                 print("inserted")
-                 print(ins)
-                 print("modification")
-                 print(mod)
-             default: break
-             }
-         })
-     }
+        self.observerWeathersMapToken = RealmManager.shared.getObserverWeatherRealmBD(by: SourceValue.map.rawValue).observe({ [weak self] collection in
+            self?.observeWeatherRealmDB(with: collection, type: .map)
+        })
+    }
+    
+    func observeWeatherRealmDB(with collection: RealmCollectionChange<Results<WeatherRealmDB>>, type: SourceValue) {
+        switch collection {
+        case .initial(let collection):
+            if type == SourceValue.map {
+                print("MAP:")
+            } else {
+                print("CITY:")
+            }
+            print("initial count weathers: \(collection.count)")
+        case .update(let collection, deletions: let del, insertions: let ins, modifications: let mod):
+            print("update count weathers: \(collection.count)")
+            print("deleted")
+            print(del)
+            print("inserted")
+            print(ins)
+            print("modification")
+            print(mod)
+        default: break
+        }
+    }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
