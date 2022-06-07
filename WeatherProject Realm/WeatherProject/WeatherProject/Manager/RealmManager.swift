@@ -61,7 +61,7 @@ class RealmManager {
     }
     
     func getWeatherWithRealmBD(by source: String) -> [WeatherDate] {
-        return realm.objects(WeatherRealmDB.self).filter("source == %@", source).map { $0.getMappedWeather() }
+        return realm.objects(WeatherRealmDB.self).filter("source == %@", source).sorted(by: \.date, ascending: false).map { $0.getMappedWeather() }
     }
     
     func removeRowFromRealmBD(by date: Date) {
